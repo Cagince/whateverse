@@ -97,7 +97,20 @@ export const Rooms = {
   },
 };
 
-var KEYS = { w: 87, a: 65, s: 83, d: 68 };
+var KEYS = { 
+  w: 87, 
+  a: 65, 
+  s: 83, 
+  d: 68,
+  h: 72,
+  j: 74,
+  k: 75,
+  l: 76,
+  up: 38,
+  down: 40,
+  left: 37,
+  right: 39,
+};
 
 class Building extends PIXI.Sprite {
   constructor(name, texture, x, y) {
@@ -109,7 +122,6 @@ class Building extends PIXI.Sprite {
     this.name = name;
     this.optionsVisible = false;
 
-    console.log(this);
   }
 
   addCircle() {
@@ -209,14 +221,14 @@ class Character extends PIXI.AnimatedSprite {
     const collisions = buildings.map(this.hitTest).filter(Boolean);
     buildings.forEach(b => b.showOptions(this));
 
-    if (pressedKeys[KEYS.w]) {
+    if (pressedKeys[KEYS.w] || pressedKeys[KEYS.k] || pressedKeys[KEYS.up]) {
       const y = this.y - 5;
       running = true;
 
       if (y > 8 && !collisions.includes('top')) this.y = y;
     }
 
-    if (pressedKeys[KEYS.a]) {
+    if (pressedKeys[KEYS.a] || pressedKeys[KEYS.h] || pressedKeys[KEYS.left]) {
       const x = this.x - 5;
       running = true;
       this.scale.x *= this.scale.x > 0 ? -1 : 1;
@@ -224,14 +236,14 @@ class Character extends PIXI.AnimatedSprite {
       if (x > 8 && !collisions.includes('left')) this.x = x;
     }
 
-    if (pressedKeys[KEYS.s]) {
+    if (pressedKeys[KEYS.s] || pressedKeys[KEYS.j] || pressedKeys[KEYS.down]) {
       const y = this.y + 5;
       running = true;
 
       if (y < maxY - 8 && !collisions.includes('bottom')) this.y = y;
     }
 
-    if (pressedKeys[KEYS.d]) {
+    if (pressedKeys[KEYS.d] || pressedKeys[KEYS.l] || pressedKeys[KEYS.right]) {
       const x = this.x + 5;
       running = true;
       this.scale.x *= this.scale.x > 0 ? 1 : -1;
