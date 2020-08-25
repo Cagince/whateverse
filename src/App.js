@@ -8,6 +8,7 @@ import magincStonesIMG from "./magic_stones.svg";
 import townhallIMG from "./townhall.svg";
 import universityIMG from "./university.svg";
 import platformerSheet from "./platformer.png";
+import baseSheet from "./base_sprite.gif";
 import Bump from './Bump';
 
 
@@ -148,7 +149,7 @@ class Building extends PIXI.Sprite {
     const dx = this.x - character.x;
     const dy = this.y - character.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
-    const isCloseEnough = distance < this.width / 1.5
+    const isCloseEnough = distance < this.width / 1.5 + character.width / 2
     
     if (isCloseEnough && !this.optionsVisible) {
       this.addCircle();
@@ -166,29 +167,63 @@ class Building extends PIXI.Sprite {
 
 
 const createCharacter = (sheet, ...rest) => {
-  const w = 64;
-  const h = 64;
+  const w = 48;
+  const h = 72;
 
   const sprite = {
-      idle: [
+      idle_down: [
         new PIXI.Texture(sheet, new PIXI.Rectangle(0 * w, 0, w, h)),
+      ],
+      idle_left: [
         new PIXI.Texture(sheet, new PIXI.Rectangle(1 * w, 0, w, h)),
+      ],
+      idle_up: [
         new PIXI.Texture(sheet, new PIXI.Rectangle(2 * w, 0, w, h)),
+      ],
+      idle_right: [
         new PIXI.Texture(sheet, new PIXI.Rectangle(3 * w, 0, w, h)),
       ],
-      running: [
-        new PIXI.Texture(sheet, new PIXI.Rectangle(4 * w, 0, w, h)),
-        new PIXI.Texture(sheet, new PIXI.Rectangle(5 * w, 0, w, h)),
-        new PIXI.Texture(sheet, new PIXI.Rectangle(6 * w, 0, w, h)),
-        new PIXI.Texture(sheet, new PIXI.Rectangle(7 * w, 0, w, h)),
+      walking_down: [
         new PIXI.Texture(sheet, new PIXI.Rectangle(0 * w, 1 * h, w, h)),
         new PIXI.Texture(sheet, new PIXI.Rectangle(1 * w, 1 * h, w, h)),
         new PIXI.Texture(sheet, new PIXI.Rectangle(2 * w, 1 * h, w, h)),
         new PIXI.Texture(sheet, new PIXI.Rectangle(3 * w, 1 * h, w, h)),
-        // new PIXI.Texture(sheet, new PIXI.Rectangle(4 * w, 1 * h, w, h)),
-        // new PIXI.Texture(sheet, new PIXI.Rectangle(3 * w, 1 * h, w, h)),
-        // new PIXI.Texture(sheet, new PIXI.Rectangle(3 * w, 1 * h, w, h)),
+
+      ],
+      walking_left: [
+
+        new PIXI.Texture(sheet, new PIXI.Rectangle(0 * w, 2 * h, w, h)),
+        new PIXI.Texture(sheet, new PIXI.Rectangle(1 * w, 2 * h, w, h)),
+        new PIXI.Texture(sheet, new PIXI.Rectangle(2 * w, 2 * h, w, h)),
+        new PIXI.Texture(sheet, new PIXI.Rectangle(3 * w, 2 * h, w, h)),
+      ],
+      walking_up: [
+
+        new PIXI.Texture(sheet, new PIXI.Rectangle(0 * w, 3 * h, w, h)),
+        new PIXI.Texture(sheet, new PIXI.Rectangle(1 * w, 3 * h, w, h)),
+        new PIXI.Texture(sheet, new PIXI.Rectangle(2 * w, 3 * h, w, h)),
+        new PIXI.Texture(sheet, new PIXI.Rectangle(3 * w, 3 * h, w, h)),
+      ],
+      walking_right: [
+
+        new PIXI.Texture(sheet, new PIXI.Rectangle(0 * w, 4 * h, w, h)),
+        new PIXI.Texture(sheet, new PIXI.Rectangle(1 * w, 4 * h, w, h)),
+        new PIXI.Texture(sheet, new PIXI.Rectangle(2 * w, 4 * h, w, h)),
+        new PIXI.Texture(sheet, new PIXI.Rectangle(3 * w, 4 * h, w, h)),
       ]
+
+      //   new PIXI.Texture(sheet, new PIXI.Rectangle(4 * w, 0, w, h)),
+      //   new PIXI.Texture(sheet, new PIXI.Rectangle(5 * w, 0, w, h)),
+      //   new PIXI.Texture(sheet, new PIXI.Rectangle(6 * w, 0, w, h)),
+      //   new PIXI.Texture(sheet, new PIXI.Rectangle(7 * w, 0, w, h)),
+      //   new PIXI.Texture(sheet, new PIXI.Rectangle(0 * w, 1 * h, w, h)),
+      //   new PIXI.Texture(sheet, new PIXI.Rectangle(1 * w, 1 * h, w, h)),
+      //   new PIXI.Texture(sheet, new PIXI.Rectangle(2 * w, 1 * h, w, h)),
+      //   new PIXI.Texture(sheet, new PIXI.Rectangle(3 * w, 1 * h, w, h)),
+      //   // new PIXI.Texture(sheet, new PIXI.Rectangle(4 * w, 1 * h, w, h)),
+      //   // new PIXI.Texture(sheet, new PIXI.Rectangle(3 * w, 1 * h, w, h)),
+      //   // new PIXI.Texture(sheet, new PIXI.Rectangle(3 * w, 1 * h, w, h)),
+      // ]
   }
 
   return new Character(sprite, ...rest);
@@ -197,7 +232,7 @@ const createCharacter = (sheet, ...rest) => {
 class Character extends PIXI.AnimatedSprite {
 
   constructor(sheet, x, y, name) {
-    super(sheet.idle);
+    super(sheet.idle_down);
     this._ssheet = sheet;
     this.anchor.set(0.5);
     this.animationSpeed = 0.1;
@@ -207,8 +242,13 @@ class Character extends PIXI.AnimatedSprite {
     this.name = name || "none";
     this.x = x;
     this.y = y;
+    this.state = 'idle';
+    this.facing = 'down';
 
     this.radius = this.width / 2;
+
+    this.scale.x = 0.75;
+    this.scale.y = 0.75;
 
     const reach = new PIXI.Graphics();
     reach.lineStyle(2, 0xFEEB77, 1);
@@ -223,42 +263,52 @@ class Character extends PIXI.AnimatedSprite {
 
 
   onTick(pressedKeys, maxX, maxY, buildings) {
-    let running = false;
 
+    this.state = 'idle'
     const collisions = buildings.map(this.hitTest).filter(Boolean);
     buildings.forEach(b => b.showOptions(this));
 
     if (pressedKeys[KEYS.w] || pressedKeys[KEYS.k] || pressedKeys[KEYS.up]) {
+      this.facing = 'up'
+      this.state = 'walking'
       const y = this.y - 5;
-      running = true;
 
       if (y > 8 && !collisions.includes('top')) this.y = y;
     }
 
     if (pressedKeys[KEYS.a] || pressedKeys[KEYS.h] || pressedKeys[KEYS.left]) {
+      this.facing = 'left'
+      this.state = 'walking'
       const x = this.x - 5;
-      running = true;
-      this.scale.x *= this.scale.x > 0 ? -1 : 1;
+      // this.scale.x *= this.scale.x > 0 ? -1 : 1;
       
       if (x > 8 && !collisions.includes('left')) this.x = x;
     }
 
     if (pressedKeys[KEYS.s] || pressedKeys[KEYS.j] || pressedKeys[KEYS.down]) {
+      this.facing = 'down'
+      this.state = 'walking'
       const y = this.y + 5;
-      running = true;
 
       if (y < maxY - 8 && !collisions.includes('bottom')) this.y = y;
     }
 
     if (pressedKeys[KEYS.d] || pressedKeys[KEYS.l] || pressedKeys[KEYS.right]) {
+      this.facing = 'right'
+      this.state = 'walking'
       const x = this.x + 5;
-      running = true;
-      this.scale.x *= this.scale.x > 0 ? 1 : -1;
+      // this.scale.x *= this.scale.x > 0 ? 1 : -1;
 
       if (x < maxX - 8 && !collisions.includes('right')) this.x = x;
     }
 
-    this.updateState(running);
+    const sheetID = [this.state, this.facing].join('_');
+    if (this.textures != this._ssheet[sheetID]) {
+      this.textures = this._ssheet[[this.state, this.facing].join('_')];
+      this.animationSpeed = 0.1;
+    }
+
+
     this.play();
   }
 
@@ -293,7 +343,7 @@ function initWhateverse(canvas) {
 
   const loader = PIXI.Loader.shared;
 
-  loader.add('character', platformerSheet);
+  loader.add('character', baseSheet);
   Object.keys(Rooms).forEach(key => loader.add(key, Rooms[key].src))
 
 
