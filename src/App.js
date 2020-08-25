@@ -7,7 +7,9 @@ import fortressIMG from "./fortress.svg";
 import magincStonesIMG from "./magic_stones.svg";
 import townhallIMG from "./townhall.svg";
 import universityIMG from "./university.svg";
+import platformerSheet from "./platformer.png";
 import Bump from './Bump';
+
 
 export const Rooms = {
   "House of Defiance": {
@@ -164,8 +166,8 @@ class Building extends PIXI.Sprite {
 
 
 const createCharacter = (sheet, ...rest) => {
-  const w = 50;
-  const h = 37;
+  const w = 64;
+  const h = 64;
 
   const sprite = {
       idle: [
@@ -175,12 +177,17 @@ const createCharacter = (sheet, ...rest) => {
         new PIXI.Texture(sheet, new PIXI.Rectangle(3 * w, 0, w, h)),
       ],
       running: [
+        new PIXI.Texture(sheet, new PIXI.Rectangle(4 * w, 0, w, h)),
+        new PIXI.Texture(sheet, new PIXI.Rectangle(5 * w, 0, w, h)),
+        new PIXI.Texture(sheet, new PIXI.Rectangle(6 * w, 0, w, h)),
+        new PIXI.Texture(sheet, new PIXI.Rectangle(7 * w, 0, w, h)),
+        new PIXI.Texture(sheet, new PIXI.Rectangle(0 * w, 1 * h, w, h)),
         new PIXI.Texture(sheet, new PIXI.Rectangle(1 * w, 1 * h, w, h)),
         new PIXI.Texture(sheet, new PIXI.Rectangle(2 * w, 1 * h, w, h)),
         new PIXI.Texture(sheet, new PIXI.Rectangle(3 * w, 1 * h, w, h)),
-        new PIXI.Texture(sheet, new PIXI.Rectangle(4 * w, 1 * h, w, h)),
-        new PIXI.Texture(sheet, new PIXI.Rectangle(5 * w, 1 * h, w, h)),
-        new PIXI.Texture(sheet, new PIXI.Rectangle(6 * w, 1 * h, w, h)),
+        // new PIXI.Texture(sheet, new PIXI.Rectangle(4 * w, 1 * h, w, h)),
+        // new PIXI.Texture(sheet, new PIXI.Rectangle(3 * w, 1 * h, w, h)),
+        // new PIXI.Texture(sheet, new PIXI.Rectangle(3 * w, 1 * h, w, h)),
       ]
   }
 
@@ -286,7 +293,7 @@ function initWhateverse(canvas) {
 
   const loader = PIXI.Loader.shared;
 
-  loader.add('character', adventurerSheet);
+  loader.add('character', platformerSheet);
   Object.keys(Rooms).forEach(key => loader.add(key, Rooms[key].src))
 
 
