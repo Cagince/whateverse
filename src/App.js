@@ -9,15 +9,17 @@ import townhallIMG from "./townhall.svg";
 import universityIMG from "./university.svg";
 import baseSheet from "./base_sprite.gif";
 import Bump from './Bump';
+// import * as proj from 'pixi-projection/dist/pixi-projection';
 
 const PIXI = global.PIXI = _PIXI;
 require('pixi-projection');
 
+const container2dToLocal  = () => '';
 
 export const Rooms = {
   "House of Defiance": {
     src: pyramidIMG,
-    coordinates: [100, 300],
+    coordinates: [-250, -250],
     urls: {
       jitsi: {
         domain: "meet.jit.si/interspace-metagame",
@@ -34,7 +36,7 @@ export const Rooms = {
   },
   "House of DAOs": {
     src: universityIMG,
-    coordinates: [500, 100],
+    coordinates: [-110, -415],
     urls: {
       jitsi: {
         domain: "meet.jit.si/interspace-metagame",
@@ -51,7 +53,7 @@ export const Rooms = {
   },
   "House of Adoption": {
     src: townhallIMG,
-    coordinates: [750, 300],
+    coordinates: [145, -390],
     urls: {
       jitsi: {
         domain: "meet.jit.si/interspace-metagame",
@@ -68,7 +70,7 @@ export const Rooms = {
   },
   "Stress Test Arena": {
     src: magincStonesIMG,
-    coordinates: [750, 600],
+    coordinates: [150, 200],
     urls: {
       jitsi: {
         domain: "meet.jit.si/interspace-metagame",
@@ -85,7 +87,7 @@ export const Rooms = {
   },
   "Raid Guild": {
     src: fortressIMG,
-    coordinates: [100, 600],
+    coordinates: [310, -190],
     urls: {
       jitsi: {
         domain: "meet.jit.si/interspace-metagame",
@@ -117,10 +119,14 @@ var KEYS = {
   right: 39,
 };
 
+
+
 class Building extends PIXI.projection.Sprite2d {
   constructor(name, texture, x, y) {
     super(texture);
-    this.anchor.set(0.5);
+    this.anchor.set(0.5, 1.0);
+    this.proj.affine = PIXI.projection.AFFINE.AXIS_X;
+    this.scale.set(1, ); // .5, .5  from more real-like buildings
     this.x = x;
     this.y = y;
     this.radius = this.width / 2.3;
@@ -231,12 +237,15 @@ const createCharacter = (sheet, ...rest) => {
   return new Character(sprite, ...rest);
 }
 
-class Character extends PIXI.AnimatedSprite {
+class Character extends  PIXI.AnimatedSprite {
 
   constructor(sheet, x, y, name) {
     super(sheet.idle_down);
+    this.convertTo3d();
     this._ssheet = sheet;
-    this.anchor.set(0.5);
+    this.anchor.set(0.5, 1.0);
+    this.proj.affine = PIXI.projection.AFFINE.AXIS_X;
+    this.scale.set(1, ); // .5, .5  from more real-like buildings
     this.animationSpeed = 0.1;
     this.autoUpdate = true;
     this.loop = true;
@@ -275,7 +284,7 @@ class Character extends PIXI.AnimatedSprite {
       this.state = 'walking'
       const y = this.y - 5;
 
-      if (y > 8 && !collisions.includes('top')) this.y = y;
+      if (/* y > 8 && **/ !collisions.includes('top')) this.y = y;
     }
 
     if (pressedKeys[KEYS.a] || pressedKeys[KEYS.h] || pressedKeys[KEYS.left]) {
@@ -284,7 +293,7 @@ class Character extends PIXI.AnimatedSprite {
       const x = this.x - 5;
       // this.scale.x *= this.scale.x > 0 ? -1 : 1;
       
-      if (x > 8 && !collisions.includes('left')) this.x = x;
+      if (/* x > 8 && **/ !collisions.includes('left')) this.x = x;
     }
 
     if (pressedKeys[KEYS.s] || pressedKeys[KEYS.j] || pressedKeys[KEYS.down]) {
@@ -292,7 +301,7 @@ class Character extends PIXI.AnimatedSprite {
       this.state = 'walking'
       const y = this.y + 5;
 
-      if (y < maxY - 8 && !collisions.includes('bottom')) this.y = y;
+      if (/* y < maxY - 8 && **/ !collisions.includes('bottom')) this.y = y;
     }
 
     if (pressedKeys[KEYS.d] || pressedKeys[KEYS.l] || pressedKeys[KEYS.right]) {
@@ -301,7 +310,7 @@ class Character extends PIXI.AnimatedSprite {
       const x = this.x + 5;
       // this.scale.x *= this.scale.x > 0 ? 1 : -1;
 
-      if (x < maxX - 8 && !collisions.includes('right')) this.x = x;
+      if (/* x < maxX - 8 && **/ !collisions.includes('right')) this.x = x;
     }
 
     const sheetID = [this.state, this.facing].join('_');
@@ -310,7 +319,7 @@ class Character extends PIXI.AnimatedSprite {
       this.animationSpeed = 0.1;
     }
 
-
+    document.getElementById('user-position-tracker').innerHTML = `(${this.x}, ${this.y})`;
     this.play();
   }
 
@@ -355,19 +364,14 @@ function initWhateverse(canvas) {
     view: canvas,
   });
 
-  // add scaling container
-  // const scalingContainer = new PIXI.Container();
-  // scalingContainer.scale.y = 0.3;
-  // scalingContainer.position.set(app.screen.width * 3 / 8, app.screen.height / 2);
-  // app.stage.addChild(scalingContainer);
   
-  const container = new PIXI.Container();
-  app.stage.addChild(container);
+  const world = new PIXI.Container();
+  app.stage.addChild(world);
 
   const isoScalingContainer = new PIXI.Container();
   isoScalingContainer.scale.y = 0.5;
-  isoScalingContainer.position.set(app.screen.width / 2, app.screen.height / 2);
-  container.addChild(isoScalingContainer);
+  isoScalingContainer.position.set(0, 0);
+  world.addChild(isoScalingContainer);
 
   drawGround(isoScalingContainer);
   
@@ -384,8 +388,8 @@ function initWhateverse(canvas) {
     // const characterTexture = PIXI.BaseTexture.from(adventurerSheet);
     const player = createCharacter(
       resources.character.texture,
-      app.renderer.width / 2,
-      app.renderer.height / 2,
+      30,
+      -241,
       "you"
     );
     player.play();
@@ -397,16 +401,19 @@ function initWhateverse(canvas) {
       return building;
     });
 
-    container.addChild(player);
-    buildings.forEach(building => container.addChild(building));
+    isoScalingContainer.addChild(player);
+    buildings.forEach(building => isoScalingContainer.addChild(building));
     let keys = {};
 
 
     const updateCameraPosition = ()  => {
-      container.pivot.x = player.position.x;
-      container.pivot.y = player.position.y;
-      container.position.x = app.renderer.width/2;
-      container.position.y = app.renderer.height/2;
+      isoScalingContainer.pivot.x = player.position.x;
+      isoScalingContainer.pivot.y = player.position.y;
+
+      world.pivot.x = isoScalingContainer.position.x;
+      world.pivot.y = isoScalingContainer.position.y;
+      world.position.x = app.renderer.width/2;
+      world.position.y = app.renderer.height/2;
     }
 
     const loop = () => {
@@ -414,8 +421,6 @@ function initWhateverse(canvas) {
       updateCameraPosition();
     };
 
-    // container.position.set(app.screen.width / 2, app.screen.height / 2);
-    // container.pivot.copyFrom(player.position);
 
 
 
@@ -445,6 +450,7 @@ function App() {
 
   return (
     <div>
+      <div id="user-position-tracker">(0,0)</div>
       <canvas ref={canvas} />
     </div>
   );
