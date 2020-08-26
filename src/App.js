@@ -1,15 +1,17 @@
 import React, { useRef, useEffect } from "react";
 import "./App.css";
-import * as PIXI from "pixi.js";
+import * as _PIXI from "pixi.js";
 import adventurerSheet from "./adventurer-Sheet.png";
 import pyramidIMG from "./pyramid.svg";
 import fortressIMG from "./fortress.svg";
 import magincStonesIMG from "./magic_stones.svg";
 import townhallIMG from "./townhall.svg";
 import universityIMG from "./university.svg";
-import platformerSheet from "./platformer.png";
 import baseSheet from "./base_sprite.gif";
 import Bump from './Bump';
+
+const PIXI = global.PIXI = _PIXI;
+require('pixi-projection');
 
 
 export const Rooms = {
@@ -115,7 +117,7 @@ var KEYS = {
   right: 39,
 };
 
-class Building extends PIXI.Sprite {
+class Building extends PIXI.projection.Sprite2d {
   constructor(name, texture, x, y) {
     super(texture);
     this.anchor.set(0.5);
@@ -326,20 +328,49 @@ class Character extends PIXI.AnimatedSprite {
 
 const createKeyHandler = (cb) => (e) => cb(e.keyCode);
 
+
+function drawGround(container) {
+  const isometryPlane = new PIXI.Graphics();
+  isometryPlane.rotation = Math.PI / 4;
+  container.addChild(isometryPlane);
+
+  isometryPlane.lineStyle(1, 0x000000);
+  for(let i = -1000; i <= 1000; i += 50 )  {
+    isometryPlane.moveTo(-1050, i);
+    isometryPlane.lineTo(1050, i);
+    isometryPlane.moveTo(i, -1050);
+    isometryPlane.lineTo(i, 1050);
+  }
+}
+
+
 function initWhateverse(canvas) {
   
   const app = new PIXI.Application({
     width: window.innerWidth,
     height: window.innerHeight,
-    backgroundColor: 0x32CD32,
+    backgroundColor: 0x464643,
     resolution: window.devicePixelRatio || 1,
     autoDensity: true,
     view: canvas,
   });
 
-
+  // add scaling container
+  // const scalingContainer = new PIXI.Container();
+  // scalingContainer.scale.y = 0.3;
+  // scalingContainer.position.set(app.screen.width * 3 / 8, app.screen.height / 2);
+  // app.stage.addChild(scalingContainer);
+  
   const container = new PIXI.Container();
   app.stage.addChild(container);
+
+  const isoScalingContainer = new PIXI.Container();
+  isoScalingContainer.scale.y = 0.5;
+  isoScalingContainer.position.set(app.screen.width / 2, app.screen.height / 2);
+  container.addChild(isoScalingContainer);
+
+  drawGround(isoScalingContainer);
+  
 
   const loader = PIXI.Loader.shared;
 
@@ -370,9 +401,23 @@ function initWhateverse(canvas) {
     buildings.forEach(building => container.addChild(building));
     let keys = {};
 
+
+    const updateCameraPosition = ()  => {
+      container.pivot.x = player.position.x;
+      container.pivot.y = player.position.y;
+      container.position.x = app.renderer.width/2;
+      container.position.y = app.renderer.height/2;
+    }
+
     const loop = () => {
       player.onTick(keys, app.renderer.width, app.renderer.height, buildings);
+      updateCameraPosition();
     };
+
+    // container.position.set(app.screen.width / 2, app.screen.height / 2);
+    // container.pivot.copyFrom(player.position);
+
+
 
     const handleKeyDown = createKeyHandler((key) => (keys[key] = true));
     const handleKeyUp = createKeyHandler((key) => (keys[key] = false));
