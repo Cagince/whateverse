@@ -1,6 +1,10 @@
 import React, { useRef, useEffect } from "react";
 import "./App.css";
+import './stars.css';
+
 import * as _PIXI from "pixi.js";
+import StarfieldAnimation from 'react-starfield-animation';
+
 import adventurerSheet from "./adventurer-Sheet.png";
 import pyramidIMG from "./pyramid.svg";
 import fortressIMG from "./fortress.svg";
@@ -14,12 +18,21 @@ import Bump from './Bump';
 const PIXI = global.PIXI = _PIXI;
 require('pixi-projection');
 
-const container2dToLocal  = () => '';
+const tileH = 1;
+const tileW = 1;
+
+function screenToIso(x, y) {
+  var posX = ((y * 2 / tileH) + (x / tileW))/2;
+  var posY = (y * 2 / tileH) - posX;
+
+  return [posX, posY];
+}
+
 
 export const Rooms = {
   "House of Defiance": {
     src: pyramidIMG,
-    coordinates: [-250, -250],
+    coordinates: screenToIso(0,-150),
     urls: {
       jitsi: {
         domain: "meet.jit.si/interspace-metagame",
@@ -36,7 +49,7 @@ export const Rooms = {
   },
   "House of DAOs": {
     src: universityIMG,
-    coordinates: [-110, -415],
+    coordinates: screenToIso(350, -150),
     urls: {
       jitsi: {
         domain: "meet.jit.si/interspace-metagame",
@@ -53,7 +66,7 @@ export const Rooms = {
   },
   "House of Adoption": {
     src: townhallIMG,
-    coordinates: [145, -390],
+    coordinates: screenToIso(-350, -150),
     urls: {
       jitsi: {
         domain: "meet.jit.si/interspace-metagame",
@@ -70,7 +83,7 @@ export const Rooms = {
   },
   "Stress Test Arena": {
     src: magincStonesIMG,
-    coordinates: [150, 200],
+    coordinates: screenToIso(-350, 200),
     urls: {
       jitsi: {
         domain: "meet.jit.si/interspace-metagame",
@@ -87,7 +100,7 @@ export const Rooms = {
   },
   "Raid Guild": {
     src: fortressIMG,
-    coordinates: [310, -190],
+    coordinates: screenToIso(500, 200),
     urls: {
       jitsi: {
         domain: "meet.jit.si/interspace-metagame",
@@ -123,6 +136,7 @@ var KEYS = {
 
 class Building extends PIXI.projection.Sprite2d {
   constructor(name, texture, x, y) {
+    console.log(Rooms)
     super(texture);
     this.anchor.set(0.5, 1.0);
     this.proj.affine = PIXI.projection.AFFINE.AXIS_X;
@@ -137,8 +151,9 @@ class Building extends PIXI.projection.Sprite2d {
 
   addCircle() {
     const graphics = new PIXI.Graphics();
+    graphics.scale.y = 0.5;
     graphics.lineStyle(2, 0xFFFFFF, 1);
-    graphics.drawCircle(0, 0, this.width / 1.5);
+    graphics.drawCircle(...screenToIso(this.width, - this.height / 2), this.width);
     graphics.endFill();
     const text = new PIXI.Text(this.name, { 
       fill: 0xffffff, 
@@ -155,7 +170,7 @@ class Building extends PIXI.projection.Sprite2d {
 
   showOptions(character) {
     const dx = this.x - character.x;
-    const dy = this.y - character.y;
+    const dy = this.y / 2 - character.y / 2;
     const distance = Math.sqrt(dx * dx + dy * dy);
     const isCloseEnough = distance < this.width / 1.5 + character.width / 2
     
@@ -343,7 +358,8 @@ function drawGround(container) {
   isometryPlane.rotation = Math.PI / 4;
   container.addChild(isometryPlane);
 
-  isometryPlane.lineStyle(1, 0x000000);
+  // isometryPlane.lineStyle(1, 0xFF247C);
+  isometryPlane.lineStyle(1, 0x0dc3cf);
   for(let i = -1000; i <= 1000; i += 50 )  {
     isometryPlane.moveTo(-1050, i);
     isometryPlane.lineTo(1050, i);
@@ -358,7 +374,7 @@ function initWhateverse(canvas) {
   const app = new PIXI.Application({
     width: window.innerWidth,
     height: window.innerHeight,
-    backgroundColor: 0x464643,
+    // backgroundColor: 0x464643,
     resolution: window.devicePixelRatio || 1,
     autoDensity: true,
     view: canvas,
@@ -388,8 +404,7 @@ function initWhateverse(canvas) {
     // const characterTexture = PIXI.BaseTexture.from(adventurerSheet);
     const player = createCharacter(
       resources.character.texture,
-      30,
-      -241,
+      ...screenToIso(0,0),
       "you"
     );
     player.play();
@@ -450,6 +465,16 @@ function App() {
 
   return (
     <div>
+      <StarfieldAnimation
+				numParticles={300}
+				lineWidth={2.0}
+				depth={300}
+				style={{
+					position: 'absolute',
+					width: '100%',
+					height: '100%',
+				}}
+			/>
       <div id="user-position-tracker">(0,0)</div>
       <canvas ref={canvas} />
     </div>

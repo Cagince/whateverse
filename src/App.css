@@ -5,3 +5,10 @@
     bottom: 10px;
     left: 10px;
 }
+
+
+html {
+	background-image: url('https://wallpaperaccess.com/full/741557.jpg');
+	background-size: cover;
+	min-height: 100vh;
+}
