@@ -1,4 +1,9 @@
-
+canvas {
+    z-index: 10;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
 
 .user-position-tracker {
     position: absolute;
@@ -43,8 +48,8 @@ html {
     border-radius: 3px;;
     background: rgba(0,0,0,0.7);
     color: white;
-    width: 300px;
-    display: fley;
+    width: 600px;
+    display: flex;
     flex-direction: column;
     margin: 10px;
     padding-bottom: 5px;
@@ -52,6 +57,7 @@ html {
 
 .window.minimized {
     padding-bottom: 0;
+    width: 300px;
 }
 
 .window.fullscreen {
@@ -103,9 +109,7 @@ html {
     color: #0dc3cf;
     background-color: var(--theme-ui-colors-primary25,rgba(13,195,207,0.25));
 }
-.window-body {
-    min-height: 100px;;
-}
+
 
 .window-footer {
     display: flex;
@@ -142,9 +146,11 @@ html {
 }
 
 .window-body {
+    min-height: 100px;
+    flex-grow: 1;
     margin: 5px 5px 0 5px;
-    padding: 5px;
     font-size: 14px;
+    padding: 1em;
 
     color: #0dc3cf;
     background-color: var(--theme-ui-colors-primary25,rgba(13,195,207,0.25));

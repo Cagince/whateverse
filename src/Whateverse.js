@@ -32,6 +32,57 @@ function useKeyPress(targetKey) {
 }
 
 
+function HubInstance({width, height, roomData}) {
+    console.log('here')
+    console.log()
+    return (
+        <iframe
+            title="Mozilla hub conference room"
+            width={width}
+            height={height}
+            frameBorder="0"
+            src={roomData.embedUrl}
+            allow="microphone; camera; vr; speaker;"
+        />
+    );
+}
+
+function YoutubeInstance({width, height, roomData}) {
+    return (
+        <iframe
+            title="Youtube conference room"
+            width={width}
+            height={height}
+            src={`https://www.youtube.com/embed/${roomData.videoId}`}
+            frameBorder="0"
+            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+        />
+    );
+}
+
+const JitsiMeetExternalAPI = window.JitsiMeetExternalAPI;
+
+const JitsiInstance = ({ width, height, roomData }) => {
+	const root = useRef(null);
+
+	useEffect(() => {
+		const options = {
+			roomName: roomData.roomName,
+			width: '100%',
+			height: '100%',
+			parentNode: root.current,
+		};
+		const api = new JitsiMeetExternalAPI(roomData.domain, options);
+
+		return function cleanup() {
+			api.dispose();
+		};
+	}, [roomData, width, height]);
+
+	return <div ref={root} style={{height: '100%'}}></div>;
+};
+
 
 
 function RoomDetailsWindow({ room, destroy }) {
@@ -45,7 +96,8 @@ function RoomDetailsWindow({ room, destroy }) {
     return (
         <Draggable
             handle=".window-header"
-            defaultPosition={{x: window.innerWidth - 320, y: 50}}
+            defaultPosition={{x: window.innerWidth - 620, y: 50}}
+            onStart={_ => false}
             // position={ fullScreen && !minimized ? { x: 0, y: 0 } : null}
             scale={1}
         >
@@ -71,7 +123,17 @@ function RoomDetailsWindow({ room, destroy }) {
                 </div>
                 {!minimized &&
                     <>
-                        <div className="window-body">this should be the body</div>
+                        <div className="window-body">
+                            {selectedTab === 'mozillaHub' &&
+                                <HubInstance {...{ roomData: room.data.urls[selectedTab], width: '100%', height: '100%' }}/> 
+                            }
+                            {selectedTab === 'youtube' &&
+                                <YoutubeInstance {...{ roomData: room.data.urls[selectedTab], width: '100%', height: '100%' }}/> 
+                            }
+                            {selectedTab === 'jitsi' &&
+                                <JitsiInstance {...{ roomData: room.data.urls[selectedTab], width: '100%', height: '100%' }}/> 
+                            }
+                        </div>
                         <div className="window-footer">
                             {tabKeys.map((t, i) => (
                                 <span {...{

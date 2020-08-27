@@ -86,7 +86,7 @@ class Character extends  PIXI.AnimatedSprite {
 
     constructor(sheet, x, y, name) {
         super(sheet.idle_down);
-        this.convertTo3d();
+        this.convertTo2d();
         this._ssheet = sheet;
         this.anchor.set(0.5, 1.0);
         this.proj.affine = PIXI.projection.AFFINE.AXIS_X;
