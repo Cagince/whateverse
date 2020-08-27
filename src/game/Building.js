@@ -4,13 +4,14 @@ import { screenToIso } from './utils';
 const PIXI = global.PIXI;
 
 export default class Building extends PIXI.projection.Sprite2d {
-    constructor(name, texture, x, y, handleCharacterCollision) {
+    constructor(name, texture, x, y, data, handleCharacterCollision) {
         super(texture);
         this.anchor.set(0.5, 1.0);
         this.proj.affine = PIXI.projection.AFFINE.AXIS_X;
         this.scale.set(1); // .5, .5  from more real-like buildings
         this.x = x;
         this.y = y;
+        this.data = data;
         this.radius = this.width / 2.3;
         this.name = name;
         this.optionsVisible = false;

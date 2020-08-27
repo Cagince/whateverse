@@ -11,17 +11,17 @@ export const Rooms = {
         src: pyramidIMG,
         coordinates: screenToIso(0,-150),
         urls: {
-        jitsi: {
-            domain: "meet.jit.si/interspace-metagame",
-            roomName: "House of Defiance",
-        },
-        mozillaHub: {
-            externalUrl: "https://hubs.mozilla.com/nKCuNrg/house-of-defiance",
-        },
-        youtube: {
-            videoId: "X5k8Cbr0d44",
-            externalUrl: "https://youtu.be/X5k8Cbr0d44",
-        },
+            jitsi: {
+                domain: "meet.jit.si/interspace-metagame",
+                roomName: "House of Defiance",
+            },
+            mozillaHub: {
+                externalUrl: "https://hubs.mozilla.com/nKCuNrg/house-of-defiance",
+            },
+            youtube: {
+                videoId: "X5k8Cbr0d44",
+                externalUrl: "https://youtu.be/X5k8Cbr0d44",
+            },
         },
     },
     "House of DAOs": {

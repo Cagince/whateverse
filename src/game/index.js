@@ -74,9 +74,9 @@ function initWhateverse(canvas, setSelectedRoom) {
 
         // setup Buildings
         const buildings = Object.keys(Rooms).map(key => {
-        const room = Rooms[key];
-        const building = new Building(key, resources[key].texture, ...room.coordinates, setSelectedRoom);
-        return building;
+            const room = Rooms[key];
+            const building = new Building(key, resources[key].texture, ...room.coordinates, Rooms[key], setSelectedRoom);
+            return building;
         });
 
         isoScalingContainer.addChild(player);
