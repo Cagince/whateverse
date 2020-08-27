@@ -4,6 +4,7 @@
     position: absolute;
     bottom: 10px;
     left: 10px;
+    color: #FF247C;
 }
 
 
@@ -11,4 +12,12 @@ html {
 	background-image: url('https://wallpaperaccess.com/full/741557.jpg');
 	background-size: cover;
 	min-height: 100vh;
+}
+
+
+.selected-room {
+    position: absolute;
+    top: 0;
+    right: 0;
+    color: #FF247C;
 }
