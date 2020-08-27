@@ -164,7 +164,7 @@ class Character extends  PIXI.AnimatedSprite {
         this.animationSpeed = 0.1;
         }
 
-        document.getElementById('user-position-tracker').innerHTML = `(${this.x}, ${this.y})`;
+        document.getElementById('user-position').innerHTML = `(${Math.floor(this.x)}, ${Math.floor(this.y)})`;
         this.play();
     }
 

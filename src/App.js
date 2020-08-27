@@ -31,7 +31,6 @@ function App() {
         
         </div>
       } */}
-      <div id="user-position-tracker">(0,0)</div>
       <Whateverse />
     </div>
   );

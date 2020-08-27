@@ -5,7 +5,6 @@ const PIXI = global.PIXI;
 
 export default class Building extends PIXI.projection.Sprite2d {
     constructor(name, texture, x, y, handleCharacterCollision) {
-        console.log(Rooms);
         super(texture);
         this.anchor.set(0.5, 1.0);
         this.proj.affine = PIXI.projection.AFFINE.AXIS_X;

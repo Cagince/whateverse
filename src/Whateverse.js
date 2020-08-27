@@ -12,7 +12,23 @@ function Whateverse({ }) {
     }, [canvas]);
 
 
-    return <canvas ref={canvas} />;
+    return (
+        <>
+            <canvas ref={canvas} />;
+
+            <div className="user-position-tracker">
+                <span>You</span>
+                <span><small id="user-position" /></span>
+            </div>
+            {room && 
+                <div className="selected-room">
+                    <span>{room.name}</span>
+                    <span><small>[{room.x}, {room.y}]</small></span>
+                </div>
+            
+            }
+        </>
+    );
 }
 
 export default Whateverse;
