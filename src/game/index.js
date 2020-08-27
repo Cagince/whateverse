@@ -37,11 +37,14 @@ function initWhateverse(canvas, setSelectedRoom) {
     const app = new PIXI.Application({
         width: window.innerWidth,
         height: window.innerHeight,
-        // backgroundColor: 0x464643,
+        // backgroundColor: 'transparent',// 0x464643,
         resolution: window.devicePixelRatio || 1,
         autoDensity: true,
         view: canvas,
     });
+
+    const renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight, { transparent: true });
+
 
     
     const world = new PIXI.Container();
@@ -66,9 +69,9 @@ function initWhateverse(canvas, setSelectedRoom) {
         // create Player
         // const characterTexture = PIXI.BaseTexture.from(adventurerSheet);
         const player = createCharacter(
-        resources.character.texture,
-        ...screenToIso(0,0),
-        "you"
+            resources.character.texture,
+            ...screenToIso(0,0),
+            "you"
         );
         player.play();
 

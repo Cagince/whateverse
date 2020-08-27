@@ -1,6 +1,6 @@
-import React, { useRef, useEffect, useState } from "react";
-import Draggable from 'react-draggable';
+import React, { useRef, useEffect, useState, useReducer } from "react";
 import initWhateverse from './game';
+import { Rnd } from 'react-rnd'
 
 
 function useKeyPress(targetKey) {
@@ -33,8 +33,6 @@ function useKeyPress(targetKey) {
 
 
 function HubInstance({width, height, roomData}) {
-    console.log('here')
-    console.log()
     return (
         <iframe
             title="Mozilla hub conference room"
@@ -43,6 +41,17 @@ function HubInstance({width, height, roomData}) {
             frameBorder="0"
             src={roomData.embedUrl}
             allow="microphone; camera; vr; speaker;"
+        />
+    );
+}
+
+function FrameInstance({ width, height, roomData }) {
+    return (
+        <iframe
+            width={width}
+            height={height}
+            frameBorder="0"
+            src={roomData.domain}
         />
     );
 }
@@ -89,21 +98,43 @@ function RoomDetailsWindow({ room, destroy }) {
 
     const [minimized, setMinimized] = useState(false);
     const [fullScreen, setFullScreen] = useState(false);
-    const tabKeys = Object.keys(room.data.urls);
+    const tabKeys = Object.keys(room.urls);
     const [selectedTab, setSelectedTab] = useState(tabKeys[0]);
 
+    const [state, setState] = useState({
+        x:  window.innerWidth / 1.5,
+        y: room.id * 50,
+        width: 600,
+        height: 300
+    });
+
+    const { width, height, x, y } = state;
+
+    let size = { 
+        width: fullScreen ? '100vw' : (minimized ? '300px' : width), 
+        height: fullScreen ? '100vh'  : (minimized ? 25 : height),
+    };
+    let position =  { 
+        x: fullScreen ? 0 : x, 
+        y: fullScreen ? 0 : y, 
+    };
 
     return (
-        <Draggable
-            handle=".window-header"
-            defaultPosition={{x: window.innerWidth - 620, y: 50}}
-            onStart={_ => false}
-            // position={ fullScreen && !minimized ? { x: 0, y: 0 } : null}
-            scale={1}
-        >
+        <Rnd {...{
+            size,
+            position,
+            onDragStop: (_, { x, y}) => (!fullScreen && setState({...state, x, y })) || true,
+            onResizeStop: ((e, d, ref, dl, position) => (!fullScreen && !minimized &&
+                setState({ 
+                    ...state, 
+                    width: ref.style.width,
+                    height: ref.style.height
+                })) || true
+            ),
+        }}>
             <div className={`window ${fullScreen && !minimized ? 'fullscreen' : '' } ${minimized ? 'minimized' : ''}`}>
                 <div className="window-header">
-                    <span>{room.name || "Name placeholder"}</span>
+                    <span>{room.name} | {selectedTab}</span>
                     <div className="window-header-actions">
                         <span {...{
                             className: minimized ? 'active' : '',
@@ -113,41 +144,40 @@ function RoomDetailsWindow({ room, destroy }) {
                         <span {...{ 
                             className: fullScreen && !minimized ? 'active' : '',
                             onClick: _ => {
-                                if (minimized) setMinimized(false);
+                                setMinimized(false);
                                 setFullScreen(!fullScreen);
                             },
                             children: '☐'
                         }} />
-                        <span {...{ onClick: _ => destroy(room), children: '☓' }} />
+                        <span {...{ onClick: _ => destroy(room.name), children: '☓' }} />
                     </div>
                 </div>
-                {!minimized &&
-                    <>
-                        <div className="window-body">
-                            {selectedTab === 'mozillaHub' &&
-                                <HubInstance {...{ roomData: room.data.urls[selectedTab], width: '100%', height: '100%' }}/> 
-                            }
-                            {selectedTab === 'youtube' &&
-                                <YoutubeInstance {...{ roomData: room.data.urls[selectedTab], width: '100%', height: '100%' }}/> 
-                            }
-                            {selectedTab === 'jitsi' &&
-                                <JitsiInstance {...{ roomData: room.data.urls[selectedTab], width: '100%', height: '100%' }}/> 
-                            }
-                        </div>
-                        <div className="window-footer">
-                            {tabKeys.map((t, i) => (
-                                <span {...{
-                                    key: `${room.name.replace(' ', '-')}-tab-${i}`,
-                                    className: selectedTab === t ? 'selected' : '',
-                                    onClick: _ => setSelectedTab(t),
-                                    children: t
-                                }}/>
-                            ))}
-                        </div>
-                    </>
-                }
+                <div className={`window-body ${selectedTab.replace('.', '-')}`}>
+                    {selectedTab === 'mozillaHub' &&
+                        <HubInstance {...{ roomData: room.urls[selectedTab], width: '100%', height: '100%' }}/> 
+                    }
+                    {selectedTab === 'youtube' &&
+                        <YoutubeInstance {...{ roomData: room.urls[selectedTab], width: '100%', height: '100%' }}/> 
+                    }
+                    {selectedTab === 'jitsi' &&
+                        <JitsiInstance {...{ roomData: room.urls[selectedTab], width: '100%', height: '100%' }}/> 
+                    }
+                    {selectedTab === 'loft.radio' &&
+                        <FrameInstance {...{ className: 'radio', roomData: room.urls[selectedTab], width: '100%', height: '100%' }}/> 
+                    }
+                </div>
+                <div className="window-footer">
+                    {tabKeys.map((t, i) => (
+                        <span {...{
+                            key: `${room.name.replace(' ', '-')}-tab-${i}`,
+                            className: selectedTab === t ? 'selected' : '',
+                            onClick: _ => setSelectedTab(t),
+                            children: t
+                        }}/>
+                    ))}
+                </div>
             </div>
-        </Draggable>
+        </Rnd>
 
     )
 }
@@ -160,21 +190,32 @@ function createRoomDetailsWindow(room, key, destroy) {
 }
 
 
+function reducer(state, action) {
+    switch(action.type) {
+        case 'add':
+            const { room } = action.payload;
+            return { ...state, [room.name]: room };
+        case 'remove':
+            console.log(action)
+            const newState = {...state};
+            delete newState[action.payload.roomKey];
+            return { ...newState };
+        default: 
+            return { ...state };
+    }
+}
+
+
 function Whateverse({ }) {
     const canvas = useRef(null);
+    const [activeRooms, dispatch] = useReducer(reducer, {});
+
+    const addRoom = (room) => dispatch({ type: 'add', payload: {room} });
+    const removeRoom = (roomKey) => dispatch({ type: 'remove', payload: {roomKey}});
     const [room, setRoom] = useState(null);
-    const [activeRooms, setActiveRooms] = useState({});
+
     const popUpRequested = useKeyPress('e');
 
-    const removeRoom = room => {
-        console.log(room);
-        const rooms = {...activeRooms };
-        console.log(rooms);
-        delete rooms[room.name];
-        console.log(rooms);
-        console.log('------------------');
-        setActiveRooms(rooms);
-    }
 
     useEffect(_ => {
         if (canvas) initWhateverse(canvas.current, setRoom);
@@ -182,17 +223,19 @@ function Whateverse({ }) {
 
     useEffect(_ => {
         if (popUpRequested && room && !activeRooms[room.name]) {
-            setActiveRooms({
-                ...activeRooms,
-                [room.name]: createRoomDetailsWindow(room, Object.keys(activeRooms).length, removeRoom)
+            addRoom({
+                name: room.name,
+                ...room.data
             });
         }
 
     }, [popUpRequested, room, activeRooms]);
 
 
-
-    const windows = Object.values(activeRooms);
+    // const windows = [];
+    const windows = Object.keys(activeRooms).map(key => createRoomDetailsWindow(
+        activeRooms[key], key, removeRoom
+    ));
 
     return (
         <>

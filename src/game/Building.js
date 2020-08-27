@@ -80,6 +80,11 @@ export default class Building extends PIXI.Sprite {
         graphics.lineStyle(2, 0xff247c, 1);
 
         graphics.drawCircle(
+            0, 0, 5
+        )
+        console.log(r)
+
+        graphics.drawCircle(
             ...screenToIso(this.width, -this.height / 2),
             r * 2
         );
@@ -107,7 +112,7 @@ export default class Building extends PIXI.Sprite {
         const dy = this.y / 2 - character.y / 2;
         const distance = calcHypotenuse(dx, dy);
         const h = calcHypotenuse(this.width, this.width / 2);
-        const isCloseEnough = distance < h;
+        const isCloseEnough = distance < 100;
 
         if (isCloseEnough && !this.optionsVisible) {
             this.addCircle(h);

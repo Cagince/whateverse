@@ -1,20 +1,24 @@
-import { screenToIso } from '../utils';
-
-import pyramidIMG from "../media/pyramid.svg";
-import fortressIMG from "../media/fortress.svg";
-import magincStonesIMG from "../media/magic_stones.svg";
-import townhallIMG from "../media/townhall.svg";
-import universityIMG from "../media/university.svg"
-
 import defiance from "../media/defiance.png";
 import adoption from "../media/adoption.png";
 import dao from "../media/dao.png";
 import guild from "../media/guild.png";
 import pokecenter from "../media/pokecenter.png"
+import octo from "../media/octo.png"
 
 
 export const Rooms = {
+    "WhateverseOcto": {
+        id: 1,
+        src: octo,
+        coordinates: [1, 239],
+        urls: {
+            'loft.radio': {
+                domain: "https://loft.radio/",
+            },
+        },
+    },
     "House of Defiance": {
+        id: 2,
         src: defiance,
         coordinates: [-393.5, 48],
         urls: {
@@ -32,8 +36,9 @@ export const Rooms = {
         },
     },
     "House of DAOs": {
+        id: 3,
         src: dao,
-        coordinates: [1.5, -346],
+        coordinates: [25, -349],
         urls: {
         jitsi: {
             domain: "meet.jit.si/interspace-metagame",
@@ -49,6 +54,7 @@ export const Rooms = {
         },
     },
     "House of Adoption": {
+        id: 4,
         src: adoption,
         coordinates: [383.5, -8],
         urls: {
@@ -66,8 +72,9 @@ export const Rooms = {
         },
     },
     "Stress Test Arena": {
+        id: 5,
         src: pokecenter,
-        coordinates: [280, 424],
+        coordinates: [238, 621],
         urls: {
         jitsi: {
             domain: "meet.jit.si/interspace-metagame",
@@ -83,8 +90,9 @@ export const Rooms = {
         },
     },
     "Raid Guild": {
+        id: 6,
         src: guild,
-        coordinates: [-276, 424],
+        coordinates: [-217, 601],
         urls: {
         jitsi: {
             domain: "meet.jit.si/interspace-metagame",

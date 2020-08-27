@@ -25,12 +25,6 @@ function App() {
 					height: '100%',
 				}}
 			/>
-      {/* {selectedRoom && 
-        <div className="selected-room">
-          {selectedRoom.name}
-        
-        </div>
-      } */}
       <Whateverse />
     </div>
   );
